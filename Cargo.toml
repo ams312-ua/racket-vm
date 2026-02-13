@@ -1,0 +1,8 @@
+[workspace]
+members = ["crates/parser"]
+resolver = "3"
+
+[workspace.dependencies]
+either = "1.15.0"
+
+parser = { path = "./crates/parser" }

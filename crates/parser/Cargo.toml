@@ -1,0 +1,9 @@
+[package]
+name = "parser"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ariadne = { version = "0.6", features = ["auto-color"] }
+chumsky = { version = "0.12", features = ["either"] }
+either.workspace = true
