@@ -30,7 +30,7 @@ mod tests {
     use crate::parsers::primitives::Primitive;
     use crate::token::Token;
 
-    fn parse_one(input: &str) -> Token {
+    fn parse_one(input: &str) -> Token<'_> {
         let parser = AnyQuotedParser::token_parser();
         parser.parse(input).into_result().expect("should parse quoted token")
     }

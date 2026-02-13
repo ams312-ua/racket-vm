@@ -1,6 +1,6 @@
 use crate::parsers::composed::Composed;
 use crate::parsers::primitives::AnyPrimitiveParser;
-use crate::parsers::{DefaultParser, FullError, RParser, RecursiveParser, RecursiveRParser};
+use crate::parsers::{DefaultParser, RParser, RecursiveParser, RecursiveRParser};
 use crate::token::Token;
 use chumsky::prelude::*;
 use either::Either;

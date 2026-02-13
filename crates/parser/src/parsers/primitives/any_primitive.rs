@@ -51,7 +51,7 @@ mod tests {
     use chumsky::Parser;
     use crate::token::Token;
 
-    fn parse_one(input: &str) -> Token {
+    fn parse_one(input: &str) -> Token<'_> {
         let parser = AnyPrimitiveParser::token_parser();
         parser.parse(input).into_result().expect("should parse token")
     }

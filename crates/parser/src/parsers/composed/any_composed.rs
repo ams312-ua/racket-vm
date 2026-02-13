@@ -1,4 +1,4 @@
-use chumsky::{Parser, prelude::{choice, recursive}};
+use chumsky::prelude::{choice, recursive};
 
 use crate::{parsers::{DefaultParser, RParser, RecursiveRParser, composed::{Composed, call::CallParser, cons::ConsParser, function::FunctionParser, lambda::LambdaParser}}, token::Token};
 

@@ -46,7 +46,7 @@ impl RParser for IdentifierParser {
 mod tests {
     use super::*;
 
-    fn parse_ident(input: &str) -> Result<Primitive, String> {
+    fn parse_ident(input: &str) -> Result<Primitive<'_>, String> {
         match IdentifierParser::raw_parser().parse(input).into_result() {
             Ok(primitive) => Ok(primitive),
             Err(e) => Err(format!("Parse error: {:?}", e)),
