@@ -4,7 +4,6 @@ use crate::token::Token;
 
 pub mod args;
 pub mod body;
-pub mod cons;
 pub mod function;
 pub mod lambda;
 pub mod any_composed;
@@ -67,9 +66,5 @@ pub enum Composed<'a> {
     Define {
         name: &'a str,
         value: Box<Either<Token<'a>, Composed<'a>>>,
-    },
-    Cons {
-        head: Box<Either<Token<'a>, Composed<'a>>>,
-        tail: Box<Either<Token<'a>, Composed<'a>>>,
     }
 }

@@ -1,13 +1,12 @@
 use chumsky::prelude::{choice, recursive};
 
-use crate::{parsers::{DefaultParser, RParser, RecursiveRParser, composed::{Composed, call::CallParser, cons::ConsParser, function::FunctionParser, lambda::LambdaParser}}, token::Token};
+use crate::{parsers::{DefaultParser, RParser, RecursiveRParser, composed::{Composed, call::CallParser, function::FunctionParser, lambda::LambdaParser}}, token::Token};
 
 /// Parser for any composed expression.
 /// This parser can parse any composed structure defined in the language.
 /// Examples:
 /// ```text
 /// (function-name arg1 arg2)
-/// (cons a b)
 /// ```
 #[derive(Clone, Copy)]
 pub struct AnyComposedParser;
@@ -20,7 +19,6 @@ impl RParser for AnyComposedParser {
             choice((
                 LambdaParser::raw_parser(p.clone()),
                 FunctionParser::raw_parser(p.clone()),
-                ConsParser::raw_parser(p.clone()),
                 CallParser::raw_parser(p.clone()),
             ))
         })
@@ -35,32 +33,6 @@ impl RParser for AnyComposedParser {
 mod tests {
     use super::*;
     use chumsky::Parser;
-
-    #[test]
-    fn parses_simple_cons() {
-        let parser = AnyComposedParser::token_parser();
-        let res = parser.parse("(42 . 100)").into_result();
-        assert!(res.is_ok());
-        let token = res.unwrap();
-        match token {
-            Token::Composed(Composed::Cons { .. }) => {
-                // Successfully parsed as cons
-            }
-            other => panic!("expected Cons, got {:?}", other),
-        }
-    }
-
-    #[test]
-    fn parses_cons_with_strings() {
-        let parser = AnyComposedParser::token_parser();
-        let res = parser.parse("(\"hello\" . \"world\")").into_result();
-        assert!(res.is_ok());
-        let token = res.unwrap();
-        match token {
-            Token::Composed(Composed::Cons { .. }) => {}
-            other => panic!("expected Cons, got {:?}", other),
-        }
-    }
 
     #[test]
     fn parses_function_with_no_args() {
@@ -128,18 +100,6 @@ mod tests {
     }
 
     #[test]
-    fn parses_cons_with_whitespace() {
-        let parser = AnyComposedParser::token_parser();
-        let res = parser.parse("(  #t  .  #f  )").into_result();
-        assert!(res.is_ok());
-        let token = res.unwrap();
-        match token {
-            Token::Composed(Composed::Cons { .. }) => {}
-            other => panic!("expected Cons, got {:?}", other),
-        }
-    }
-
-    #[test]
     fn rejects_invalid_cons_missing_dot() {
         let parser = AnyComposedParser::token_parser();
         let res = parser.parse("(42 100)").into_result();
@@ -165,30 +125,6 @@ mod tests {
                 assert_eq!(func.args.named, vec!["a", "b", "c"]);
             }
             other => panic!("expected Function with 3 args, got {:?}", other),
-        }
-    }
-
-    #[test]
-    fn parses_cons_primitives_integers() {
-        let parser = AnyComposedParser::token_parser();
-        let res = parser.parse("(0 . -1)").into_result();
-        assert!(res.is_ok());
-        let token = res.unwrap();
-        match token {
-            Token::Composed(Composed::Cons { .. }) => {}
-            other => panic!("expected Cons with integers, got {:?}", other),
-        }
-    }
-
-    #[test]
-    fn parses_cons_with_booleans() {
-        let parser = AnyComposedParser::token_parser();
-        let res = parser.parse("(#true . #f)").into_result();
-        assert!(res.is_ok());
-        let token = res.unwrap();
-        match token {
-            Token::Composed(Composed::Cons { .. }) => {}
-            other => panic!("expected Cons with booleans, got {:?}", other),
         }
     }
 
