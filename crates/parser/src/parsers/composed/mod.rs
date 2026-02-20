@@ -33,7 +33,7 @@ pub struct FnArgs<'a> {
 /// ```
 #[derive(Clone, Debug)]
 pub struct FnBody<'a> {
-    pub content: Vec<Either<Token<'a>, Composed<'a>>>,
+    pub content: Vec<Token<'a>>,
 }
 
 /// Representation of a tree-like composed expression.
@@ -48,7 +48,7 @@ pub struct FnBody<'a> {
 #[derive(Clone, Debug)]
 pub struct Tree<'a> {
     pub root: &'a str,
-    pub leaves: Vec<Either<Token<'a>, Composed<'a>>>,
+    pub leaves: Vec<Token<'a>>,
 }
 
 #[derive(Clone, Debug)]
@@ -63,8 +63,4 @@ pub enum Composed<'a> {
     /// Lambda / function definition.
     Function(Function<'a>),
     Tree(Tree<'a>),
-    Define {
-        name: &'a str,
-        value: Box<Either<Token<'a>, Composed<'a>>>,
-    }
 }

@@ -1,4 +1,4 @@
-use crate::parsers::{composed::Composed, primitives::Primitive, quoted::Quoted};
+use crate::parsers::{composed::Composed, keywords::Keyword, primitives::Primitive, quoted::Quoted};
 
 pub const KEYWORDS: &[&str] = &[
     "lambda",
@@ -11,5 +11,6 @@ pub enum Token<'a> {
     Primitive(Primitive<'a>),
 
     Composed(Composed<'a>),
-    Quoted(Quoted<'a>)
+    Quoted(Quoted<'a>),
+    Keyword(Keyword<'a>)
 }

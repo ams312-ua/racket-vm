@@ -1,6 +1,7 @@
 pub mod composed;
 pub mod primitives;
 pub mod quoted;
+pub mod keywords;
 
 use chumsky::Parser;
 use chumsky::prelude::Recursive;

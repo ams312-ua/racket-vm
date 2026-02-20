@@ -13,7 +13,7 @@ pub struct LambdaParser;
 impl RecursiveRParser for LambdaParser {
 	type Output<'a> = Composed<'a>;
 
-	type RecursiveParserOutput<'a> = Composed<'a>;
+	type RecursiveParserOutput<'a> = Token<'a>;
 
 	fn raw_parser<'a, 'b>(
 		inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>

@@ -12,20 +12,20 @@ use crate::{parsers::{DefaultParser, RParser, RecursiveRParser, composed::{Compo
 pub struct AnyComposedParser;
 
 impl RParser for AnyComposedParser {
-    type Output<'a> = Composed<'a>;
+    type Output<'a> = Token<'a>;
 
     fn raw_parser<'a>() -> impl DefaultParser<'a, Self::Output<'a>> {
         recursive(|p| {
             choice((
-                LambdaParser::raw_parser(p.clone()),
-                FunctionParser::raw_parser(p.clone()),
-                CallParser::raw_parser(p.clone()),
+                LambdaParser::token_parser(p.clone()),
+                FunctionParser::token_parser(p.clone()),
+                CallParser::token_parser(p.clone()),
             ))
         })
     }
 
     fn to_token<'a>(src: Self::Output<'a>) -> Token<'a> {
-        Token::Composed(src)
+        src
     }
 }
 

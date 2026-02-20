@@ -7,9 +7,9 @@ use crate::token::Token;
 
 #[derive(Debug, Clone)]
 pub enum Quoted<'a> {
-    List(Vec<Either<Token<'a>, Quoted<'a>>>),
+    List(Vec<Token<'a>>),
     Cons {
-        left: Box<Either<Token<'a>, Quoted<'a>>>,
-        right: Box<Either<Token<'a>, Quoted<'a>>>
+        left: Box<Token<'a>>,
+        right: Box<Token<'a>>
     }
 }

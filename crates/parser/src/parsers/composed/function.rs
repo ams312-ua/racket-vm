@@ -7,7 +7,7 @@ pub struct FunctionParser;
 impl RecursiveRParser for FunctionParser {
     type Output<'a> = Composed<'a>;
 
-    type RecursiveParserOutput<'a> = Composed<'a>;
+    type RecursiveParserOutput<'a> = Token<'a>;
 
     fn raw_parser<'a, 'b>(
         inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>

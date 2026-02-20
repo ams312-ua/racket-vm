@@ -8,13 +8,13 @@ pub struct ConsParser;
 impl RecursiveRParser for ConsParser {
     type Output<'a> = Quoted<'a>;
 
-    type RecursiveParserOutput<'a> = Quoted<'a>;
+    type RecursiveParserOutput<'a> = Token<'a>;
 
     fn raw_parser<'a, 'b>(
         inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>
     ) -> impl DefaultParser<'a, Self::Output<'a>> {
-        let primitive_or_quoted = inner.clone().map(Either::Right)
-            .or(AnyPrimitiveParser::token_parser().map(Either::Left));
+        let primitive_or_quoted = inner.clone()
+            .or(AnyPrimitiveParser::token_parser());
 
         // Separator: one or more spaces, dot, one or more spaces
         let dot_separator = just(' ')

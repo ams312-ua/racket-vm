@@ -11,14 +11,14 @@ pub struct BodyParser;
 impl RecursiveRParser for BodyParser {
     type Output<'a> = FnBody<'a>;
 
-    type RecursiveParserOutput<'a> = Composed<'a>;
+    type RecursiveParserOutput<'a> = Token<'a>;
 
     fn raw_parser<'a, 'b>(
         inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>
     ) -> impl DefaultParser<'a, Self::Output<'a>> {
         choice((
-            inner.map(|c| Either::Right(c)),
-            AnyPrimitiveParser::token_parser().map(Either::Left),
+            inner,
+            AnyPrimitiveParser::token_parser(),
         ))
         .separated_by(just(' '))
         .at_least(1)

@@ -1,17 +1,17 @@
 use chumsky::{error::Rich, prelude::*};
 use either::Either;
 
-use crate::{parsers::{DefaultParser, RParser, RecursiveRParser, composed::{Composed, Tree}, primitives::{AnyPrimitiveParser, IdentifierParser, Primitive}}, token::{KEYWORDS, Token}};
+use crate::{parsers::{DefaultParser, RParser, RecursiveParser, RecursiveRParser, composed::{Composed, Tree}, primitives::{AnyPrimitiveParser, IdentifierParser, Primitive}}, token::{KEYWORDS, Token}};
 
 pub struct CallParser;
 
 impl RecursiveRParser for CallParser {
     type Output<'a> = Composed<'a>;
 
-    type RecursiveParserOutput<'a> = Composed<'a>;
+    type RecursiveParserOutput<'a> = Token<'a>;
 
     fn raw_parser<'a, 'b>(
-        inner: crate::parsers::RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>
+        inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>
     ) -> impl DefaultParser<'a, Self::Output<'a>> {
         IdentifierParser::raw_parser()
             .try_map(|p, span| {
@@ -27,8 +27,7 @@ impl RecursiveRParser for CallParser {
             })
             .then(
                 AnyPrimitiveParser::token_parser()
-                    .map(Either::Left)
-                    .or(inner.map(Either::Right))
+                    .or(inner)
                     .padded()
                     .repeated()
                     .collect::<Vec<_>>()
