@@ -1,0 +1,122 @@
+use common::value::{GCValue, GCValueExt, Value, ValueExt};
+use std_native_macros::native_plugin;
+use vm::{
+    native::NativePlugins,
+    plugin::{MaybeGcValue, NativeError, NativePluginCollection},
+    vm::VM,
+};
+
+pub(crate) struct BaseListPlugin;
+impl NativePluginCollection for BaseListPlugin {
+    fn register(self, registry: &mut NativePlugins) {
+        registry
+            .register_plugin(base_list_plugin::plugin())
+            .register_plugin(base_len_plugin::plugin())
+            .register_plugin(base_append_plugin::plugin())
+            .register_plugin(base_reverse_plugin::plugin())
+            .register_plugin(base_is_null_plugin::plugin());
+    }
+}
+
+#[native_plugin(namespace = "base", name = "list", arity = 0, variadic = true)]
+fn list(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    if args.is_empty() {
+        return Ok(Value::Null.into());
+    }
+
+    let mut items = Vec::with_capacity(args.len());
+
+    for arg in args {
+        items.push(arg.clone());
+    }
+
+    Ok(Value::list(items).into())
+}
+
+#[native_plugin(namespace = "base", name = "length", arity = 0, variadic = false)]
+fn len(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+
+    if !item.is_list() {
+        return Err(NativeError::InvalidType {
+            expected: "List",
+            got: item.data_type_name(),
+        });
+    }
+
+    let mut len = 1;
+    let mut current = item.as_ref();
+
+    while let Value::Pair {
+        cdr, is_list: true, ..
+    } = current
+    {
+        len += 1;
+        current = cdr.as_ref();
+    }
+
+    Ok(Value::Integer(len).into())
+}
+
+#[native_plugin(namespace = "base", name = "append", arity = 2, variadic = false)]
+fn append(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let head = &args[0];
+    let tail = &args[1];
+
+    if !head.is_list() {
+        return Err(NativeError::InvalidType {
+            expected: "List",
+            got: head.data_type_name(),
+        });
+    }
+
+    let mut list_items = head
+        .iter_list()?
+        .map(|item| item.into_value())
+        .collect::<Vec<_>>();
+
+    // If tail is list, we just need to clone the head and link the last cdr
+    // to the head of the tail.
+    if tail.is_list() {
+        // We build the new list in reverse order, starting from the tail.
+        let mut current = tail.clone();
+
+        // reverse it cuz we need to link from last to first
+        list_items.reverse();
+        for item in list_items {
+            current = Value::pair(item, current).into_gc_value();
+        }
+
+        Ok(current.into_value().into())
+    } else {
+        // if not, we just push it to the end of the list and return it as a new list.
+        list_items.push(tail.into_value());
+        Ok(Value::list(list_items).into())
+    }
+}
+
+#[native_plugin(namespace = "base", name = "reverse", arity = 1, variadic = false)]
+fn reverse(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+
+    if !item.is_list() {
+        return Err(NativeError::InvalidType {
+            expected: "List",
+            got: item.data_type_name(),
+        });
+    }
+
+    let mut list_items = item
+        .iter_list()?
+        .map(|item| item.into_value())
+        .collect::<Vec<_>>();
+
+    list_items.reverse();
+    Ok(Value::list(list_items).into())
+}
+
+#[native_plugin(namespace = "base", name = "null?", arity = 1, variadic = false)]
+fn is_null(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+    Ok(Value::Boolean(item.is_null()).into())
+}

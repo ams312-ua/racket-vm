@@ -1,0 +1,9 @@
+[package]
+name = "std-native"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+common.workspace = true
+vm.workspace = true
+std-native-macros.workspace = true

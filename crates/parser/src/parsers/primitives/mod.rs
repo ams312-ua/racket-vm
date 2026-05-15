@@ -28,7 +28,7 @@ pub use {
     any_primitive::AnyPrimitiveParser,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Primitive<'a> {
     String(&'a str),
     Character(&'a str),

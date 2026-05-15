@@ -1,0 +1,30 @@
+Racket Features:
+- S-expression syntax ✓
+- Dynamic typing ✓
+- First-class functions ✓
+- Lambda expressions ✓
+- Lexical scoping ✓
+- Conditional evaluation (if, cond) ✓
+- Function definitions (define) ✓
+- List operations ✓ -> cambiar a definicion de lista correcta
+- Quoted data structures ✓
+- Symbols 
+- Numbers (integers, floats) ✓
+- Strings ✓
+- Booleans ✓
+- Characters ✓
+- Function calls with variable arguments ✓
+- Recursive functions ✓
+- Higher-order functions ✓
+- Pattern matching
+- Exception handling ✓
+- Continuations
+- Macros and syntax transformation
+- Module system
+- Contracts
+- Type annotations
+- Lazy evaluation
+- Concurrency primitives
+- Regular expressions ✓
+- FFI (Foreign Function Interface)
+- Garbage collection (a medio implementar, queda llamar al recolector de basura)

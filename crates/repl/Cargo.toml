@@ -5,4 +5,8 @@ edition = "2024"
 
 [dependencies]
 parser.workspace = true
+common.workspace = true
+compiler.workspace = true
 chumsky.workspace = true
+vm.workspace = true
+std-native.workspace = true

@@ -5,7 +5,7 @@ pub mod cons;
 use either::Either;
 use crate::token::Token;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Quoted<'a> {
     List(Vec<Token<'a>>),
     Cons {

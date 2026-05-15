@@ -8,5 +8,15 @@ pub mod util;
 
 /// Returns the parser to call to parse any kind of racket code.
 pub fn parser<'a>() -> impl DefaultParser<'a, Vec<Token<'a>>> {
-    chumsky::prelude::todo()
+    use parsers::*;
+
+    choice((
+        keywords::define::DefineParser::token_parser(),
+        keywords::r#if::IfParser::token_parser(),
+        keywords::cond::CondParser::token_parser(),
+        quoted::any_quoted::AnyQuotedParser::token_parser(),
+        composed::any_composed::AnyComposedParser::token_parser(),
+        primitives::AnyPrimitiveParser::token_parser(),
+    )).repeated()
+    .collect::<Vec<_>>()
 }

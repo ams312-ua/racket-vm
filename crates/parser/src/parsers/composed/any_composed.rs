@@ -31,6 +31,8 @@ impl RParser for AnyComposedParser {
 
 #[cfg(test)]
 mod tests {
+    use crate::parsers::primitives::Primitive;
+
     use super::*;
     use chumsky::Parser;
 
@@ -100,13 +102,6 @@ mod tests {
     }
 
     #[test]
-    fn rejects_invalid_cons_missing_dot() {
-        let parser = AnyComposedParser::token_parser();
-        let res = parser.parse("(42 100)").into_result();
-        assert!(res.is_err(), "should reject cons without dot");
-    }
-
-    #[test]
     fn rejects_unclosed_paren() {
         let parser = AnyComposedParser::token_parser();
         let res = parser.parse("(42 . 100").into_result();
@@ -136,7 +131,7 @@ mod tests {
         let token = res.unwrap();
         match token {
             Token::Composed(Composed::Tree(tree)) => {
-                assert_eq!(tree.root, "print");
+                assert_eq!(tree.root.as_ref(), &Token::Primitive(Primitive::Ident("print")));
                 assert_eq!(tree.leaves.len(), 1);
             }
             other => panic!("expected Tree (call), got {:?}", other),
@@ -151,7 +146,7 @@ mod tests {
         let token = res.unwrap();
         match token {
             Token::Composed(Composed::Tree(tree)) => {
-                assert_eq!(tree.root, "max");
+                assert_eq!(tree.root.as_ref(), &Token::Primitive(Primitive::Ident("max")));
                 assert_eq!(tree.leaves.len(), 3);
             }
             other => panic!("expected Tree with multiple args, got {:?}", other),
@@ -166,7 +161,7 @@ mod tests {
         let token = res.unwrap();
         match token {
             Token::Composed(Composed::Tree(tree)) => {
-                assert_eq!(tree.root, "concat");
+                assert_eq!(tree.root.as_ref(), &Token::Primitive(Primitive::Ident("concat")));
                 assert_eq!(tree.leaves.len(), 2);
             }
             other => panic!("expected Tree with strings, got {:?}", other),
@@ -181,7 +176,7 @@ mod tests {
         let token = res.unwrap();
         match token {
             Token::Composed(Composed::Tree(tree)) => {
-                assert_eq!(tree.root, "format");
+                assert_eq!(tree.root.as_ref(), &Token::Primitive(Primitive::Ident("format")));
                 assert_eq!(tree.leaves.len(), 2);
             }
             other => panic!("expected Tree with whitespace, got {:?}", other),
@@ -196,7 +191,7 @@ mod tests {
         let token = res.unwrap();
         match token {
             Token::Composed(Composed::Tree(tree)) => {
-                assert_eq!(tree.root, "outer");
+                assert_eq!(tree.root.as_ref(), &Token::Primitive(Primitive::Ident("outer")));
                 assert_eq!(tree.leaves.len(), 1);
             }
             other => panic!("expected Tree with nested call, got {:?}", other),
@@ -211,7 +206,7 @@ mod tests {
         let token = res.unwrap();
         match token {
             Token::Composed(Composed::Tree(tree)) => {
-                assert_eq!(tree.root, "func");
+                assert_eq!(tree.root.as_ref(), &Token::Primitive(Primitive::Ident("func")));
                 assert_eq!(tree.leaves.len(), 3);
             }
             other => panic!("expected Tree with mixed primitives, got {:?}", other),
@@ -226,7 +221,7 @@ mod tests {
         let token = res.unwrap();
         match token {
             Token::Composed(Composed::Tree(tree)) => {
-                assert_eq!(tree.root, "get-value");
+                assert_eq!(tree.root.as_ref(), &Token::Primitive(Primitive::Ident("get-value")));
                 assert!(tree.leaves.is_empty());
             }
             other => panic!("expected Tree with no args, got {:?}", other),

@@ -16,7 +16,7 @@ pub mod call;
 /// argument list itself and DOES NOT consume surrounding delimiters such as
 /// parentheses — this lets the same parser be reused by lambdas and other
 /// higher-level forms which handle delimiters.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FnArgs<'a> {
     pub named: Vec<&'a str>,
     pub variadic: Option<&'a str>,
@@ -31,7 +31,7 @@ pub struct FnArgs<'a> {
 /// 42
 /// (begin (define x 10) (define y 20) (+ x y))
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FnBody<'a> {
     pub content: Vec<Token<'a>>,
 }
@@ -45,20 +45,20 @@ pub struct FnBody<'a> {
 /// (+ 1 2)
 /// (* (+ 1 2) 3)
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Tree<'a> {
-    pub root: &'a str,
+    pub root: Box<Token<'a>>,
     pub leaves: Vec<Token<'a>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Function<'a> {
     pub name: Option<&'a str>,
     pub args: FnArgs<'a>,
     pub body: Box<FnBody<'a>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Composed<'a> {
     /// Lambda / function definition.
     Function(Function<'a>),

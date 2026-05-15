@@ -1,9 +1,8 @@
 [package]
-name = "common"
+name = "compiler"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-dumpster.workspace = true
 parser.workspace = true
-thiserror.workspace = true
+common.workspace = true
