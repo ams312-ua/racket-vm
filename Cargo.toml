@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/compiler","crates/common","crates/parser", "crates/repl", "crates/vm", "crates/std-native-macros", "crates/std-native", "crates/vm-tests"]
+members = ["crates/compiler","crates/common","crates/parser", "crates/vm", "crates/std-native-macros", "crates/std-native", "crates/vm-tests", "crates/cli"]
 resolver = "3"
 
 [workspace.dependencies]
@@ -10,10 +10,10 @@ dumpster = "2.1.0"
 rapidhash = "4.4.1"
 clap = { version = "4", features = ["derive"] }
 
+cli ={ path = "./crates/cli" }
 compiler = { path = "./crates/compiler" }
 parser = { path = "./crates/parser" }
 common = { path = "./crates/common" }
-repl = { path = "./crates/repl" }
 std-native = { path = "./crates/std-native" }
 std-native-macros = { path = "./crates/std-native-macros" }
 vm = { path = "./crates/vm" }

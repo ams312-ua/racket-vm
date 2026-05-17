@@ -77,6 +77,25 @@ impl Value {
        }
     }
 
+    pub fn rem(&self, other: &Value) -> Result<Value, ValueError> {
+        match (self, other) {
+            (Value::Integer(a), Value::Integer(b)) => Ok(Value::Integer(a % b)),
+            (Value::Float(a), Value::Float(b)) => Ok(Value::Float(a % b)),
+            (Value::Double(a), Value::Double(b)) => Ok(Value::Double(a % b)),
+            (Value::Integer(a), Value::Float(b)) => Ok(Value::Float(*a as f32 % b)),
+            (Value::Float(a), Value::Integer(b)) => Ok(Value::Float(a % *b as f32)),
+            (Value::Integer(a), Value::Double(b)) => Ok(Value::Double(*a as f64 % b)),
+            (Value::Double(a), Value::Integer(b)) => Ok(Value::Double(a % *b as f64)),
+            (Value::Float(a), Value::Double(b)) => Ok(Value::Double(*a as f64 % b)),
+            (Value::Double(a), Value::Float(b)) => Ok(Value::Double(a % *b as f64)),
+            _ => Err(ValueError::InvalidOperation {
+                operation: "remainder",
+                left: self.data_type_name(),
+                right: other.data_type_name(),
+            })
+       }
+    }
+
     pub fn expt(&self, other: &Value) -> Result<Value, ValueError> {
         match (self, other) {
             (Value::Integer(a), Value::Integer(b)) => Ok(Value::Integer(a.pow(*b as u32))),

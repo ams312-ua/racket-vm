@@ -2,23 +2,21 @@ use chumsky::prelude::*;
 
 use crate::{
     parsers::{
-        DefaultParser, RParser, composed::{Composed, Function, any_composed::AnyComposedParser}, keywords::Keyword, primitives::{AnyPrimitiveParser, IdentifierParser, Primitive}, quoted::any_quoted::AnyQuotedParser
+        DefaultParser, RParser, RecursiveParser, RecursiveRParser, composed::{Composed, Function, any_composed::AnyComposedParser}, keywords::Keyword, primitives::{AnyPrimitiveParser, IdentifierParser, Primitive}, quoted::any_quoted::AnyQuotedParser
     },
     token::Token,
 };
 
 pub struct DefineParser;
 
-impl RParser for DefineParser {
+impl RecursiveRParser for DefineParser {
     type Output<'a> = Keyword<'a>;
 
-    fn raw_parser<'a>() -> impl DefaultParser<'a, Self::Output<'a>> {
-        let value = choice((
-            AnyPrimitiveParser::token_parser(),
-            AnyComposedParser::token_parser(),
-            AnyQuotedParser::token_parser()
-        ));
+    type RecursiveParserOutput<'a> = Token<'a>;
 
+    fn raw_parser<'a, 'b>(
+        value: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>,
+    ) -> impl DefaultParser<'a, Self::Output<'a>> {
         just("define")
             .padded()
             .ignore_then(IdentifierParser::raw_parser().padded().or_not())
@@ -60,15 +58,17 @@ mod tests {
     use super::*;
 
     fn parse_ok(input: &str) -> Keyword<'_> {
-        DefineParser::raw_parser()
+        todo!()
+        /*DefineParser::raw_parser()
             .parse(input)
             .into_result()
-            .expect("define form should parse")
+            .expect("define form should parse")*/
     }
 
     fn parse_err(input: &str) {
-        let res = DefineParser::raw_parser().parse(input).into_result();
-        assert!(res.is_err(), "expected parse error for: {input}");
+        todo!()
+        /*let res = DefineParser::raw_parser().parse(input).into_result();
+        assert!(res.is_err(), "expected parse error for: {input}");*/
     }
 
     #[test]

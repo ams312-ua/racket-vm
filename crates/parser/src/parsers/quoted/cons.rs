@@ -13,9 +13,15 @@ impl RecursiveRParser for ConsParser {
     fn raw_parser<'a, 'b>(
         inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>
     ) -> impl DefaultParser<'a, Self::Output<'a>> {
-        let primitive_or_quoted = inner.clone()
-            .or(AnyPrimitiveParser::token_parser());
-
+        //let inner = AnyPrimitiveParser::token_parser().or(inner);
+        let inner = inner.try_map(|v, s| {
+            if matches!(v, Token::Primitive(_)) {
+                Err(Rich::custom(s, "Padded primitive should not parse here"))
+            } else {
+                Ok(v)
+            }
+        }).or(AnyPrimitiveParser::token_parser());
+        
         // Separator: one or more spaces, dot, one or more spaces
         let dot_separator = just(' ')
             .repeated()
@@ -23,9 +29,9 @@ impl RecursiveRParser for ConsParser {
             .then_ignore(just('.'))
             .then_ignore(just(' ').repeated().at_least(1));
 
-        primitive_or_quoted.clone()
+        inner.clone()
             .then_ignore(dot_separator)
-            .then(primitive_or_quoted)
+            .then(inner)
             .padded()
             .delimited_by(just("'("), just(')'))
             .map(|(token, token2)| {

@@ -30,7 +30,7 @@ impl RParser for IdentifierParser {
     fn raw_parser<'a>() -> impl DefaultParser<'a, Self::Output<'a>> {
         text::ident()
             .ignored()
-            .or(one_of("_+-*/<>=!?@#$%^&~.").ignored())
+            .or(one_of("_+-*/<>=!?@#$%^&~").ignored())
             .repeated()
             .at_least(1)
             .to_slice()

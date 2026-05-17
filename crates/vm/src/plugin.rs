@@ -1,4 +1,6 @@
-use common::value::{GCValue, Value, ValueError};
+use std::ops::Deref;
+
+use common::value::{GCValue, Value, ValueError, ValueExt};
 use thiserror::Error;
 
 use crate::{native::NativePlugins, vm::VM};
@@ -75,6 +77,33 @@ impl From<Value> for MaybeGcValue {
 impl From<GCValue> for MaybeGcValue {
     fn from(value: GCValue) -> Self {
         MaybeGcValue::Gc(value)
+    }
+}
+
+impl Deref for MaybeGcValue {
+    type Target = Value;
+    
+    fn deref(&self) -> &Self::Target {
+        match self {
+            MaybeGcValue::Gc(gc_value) => gc_value.as_ref(),
+            MaybeGcValue::Value(value) => value,
+        }   
+    }
+}
+
+impl ValueExt for MaybeGcValue {
+    fn into_gc_value(self) -> GCValue {
+        match self {
+            MaybeGcValue::Gc(gc_value) => gc_value,
+            MaybeGcValue::Value(value) => GCValue::new(value),
+        }
+    }
+
+    fn into_value(self) -> Value {
+        match self {
+            MaybeGcValue::Gc(gc_value) => gc_value.into_value(),
+            MaybeGcValue::Value(value) => value,
+        }
     }
 }
 

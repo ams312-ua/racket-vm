@@ -9,6 +9,4 @@ rapidhash.workspace = true
 clap.workspace = true
 chumsky.workspace = true
 
-compiler.workspace = true
 common.workspace = true
-parser.workspace = true

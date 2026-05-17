@@ -15,7 +15,8 @@ impl NativePluginCollection for BaseMathPlugin {
             .register_plugin(base_sub_plugin::plugin())
             .register_plugin(base_mul_plugin::plugin())
             .register_plugin(base_div_plugin::plugin())
-            .register_plugin(base_expt_plugin::plugin());
+            .register_plugin(base_expt_plugin::plugin())
+            .register_plugin(base_remainder_plugin::plugin());
     }
 }
 
@@ -69,4 +70,12 @@ fn expt(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
     let exponent = args[1].into_value();
 
     Ok(base.expt(&exponent)?.into())
+}
+
+#[native_plugin(namespace = "base", name = "remainder", arity = 2, variadic = false)]
+fn remainder(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let dividend = args[0].into_value();
+    let divisor = args[1].into_value();
+
+    Ok(dividend.rem(&divisor)?.into())
 }

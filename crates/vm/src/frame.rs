@@ -13,7 +13,7 @@ use crate::{stack::Stack, storage::ValueStorage};
 #[derive(Debug, Clone)]
 pub struct Frame {
     pub locals: ValueStorage,
-    bytecode: Vec<BytecodeInstruction>,
+    pub bytecode: Vec<BytecodeInstruction>,
     is_root: bool,
 }
 

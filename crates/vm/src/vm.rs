@@ -226,7 +226,20 @@ impl VM {
                 branches,
                 else_branch,
             } => {
-                todo!()
+                let next_frame = frame.make_child(conditions[0].clone());
+
+                self.control_frames.push(ControlFrame::CondSelect {
+                    next_index: 0,
+                    conditions: conditions,
+                    branches: branches,
+                    else_branch: else_branch,
+                });
+                
+                self.push_frame(frame);
+                self.push_frame(next_frame);
+
+                // early return to avoid pushing twice
+                return Ok(true);
             }
             _ => todo!(),
         }
@@ -265,12 +278,15 @@ impl VM {
                 if result.is_truthy() {
                     self.frames
                         .push(self.make_frame(branches[next_index].clone()));
+
+                    return;
                 }
 
                 let next_candidate = next_index + 1;
                 if next_candidate < conditions.len() {
                     self.frames
-                        .push(self.make_frame(conditions[next_index].clone()));
+                        .push(self.make_frame(conditions[next_candidate].clone()));
+                    
                     self.control_frames.push(CondSelect {
                         next_index: next_candidate,
                         conditions,

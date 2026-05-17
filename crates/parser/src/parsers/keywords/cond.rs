@@ -3,22 +3,22 @@ use either::Either;
 
 use crate::{
 	parsers::{
-		DefaultParser, RParser,
-		composed::any_composed::AnyComposedParser,
-		keywords::{Keyword, r#if::IfParser},
-		primitives::AnyPrimitiveParser,
-		quoted::any_quoted::AnyQuotedParser,
+		DefaultParser, RParser, RecursiveParser, RecursiveRParser, composed::any_composed::AnyComposedParser, keywords::{Keyword, r#if::IfParser}, primitives::AnyPrimitiveParser, quoted::any_quoted::AnyQuotedParser
 	},
 	token::Token,
 };
 
 pub struct CondParser;
 
-impl RParser for CondParser {
+impl RecursiveRParser for CondParser {
 	type Output<'a> = Keyword<'a>;
 
-	fn raw_parser<'a>() -> impl DefaultParser<'a, Self::Output<'a>> {
-		recursive(|cond_expr| {
+	type RecursiveParserOutput<'a> = Token<'a>;
+
+	fn raw_parser<'a, 'b>(
+		value: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>,
+	) -> impl DefaultParser<'a, Self::Output<'a>> {
+		/*recursive(|cond_expr| {
 			let atom = choice((
 				IfParser::raw_parser().map(Token::Keyword),
 				AnyPrimitiveParser::token_parser(),
@@ -28,7 +28,10 @@ impl RParser for CondParser {
 
 			let value = choice((cond_expr.map(Token::Keyword), atom)).padded();
 
-			let branch = value
+			
+		})*/
+
+		let branch = value
 				.clone()
 				.then(value.clone())
 				.delimited_by(just('(').padded(), just(')').padded())
@@ -72,7 +75,6 @@ impl RParser for CondParser {
 						else_branch: else_clause,
 					})
 				})
-		})
 	}
 
 	fn to_token<'a>(src: Self::Output<'a>) -> Token<'a> {
@@ -88,15 +90,17 @@ mod tests {
 	use crate::parsers::{composed::Composed, primitives::Primitive};
 
 	fn parse_ok(input: &str) -> Keyword<'_> {
-		CondParser::raw_parser()
+		todo!()
+		/*CondParser::raw_parser()
 			.parse(input)
 			.into_result()
-			.expect("cond form should parse")
+			.expect("cond form should parse")*/
 	}
 
 	fn parse_err(input: &str) {
-		let res = CondParser::raw_parser().parse(input).into_result();
-		assert!(res.is_err(), "expected parse error for: {input}");
+		todo!()
+		/*let res = CondParser::raw_parser().parse(input).into_result();
+		assert!(res.is_err(), "expected parse error for: {input}");*/
 	}
 
 	#[test]

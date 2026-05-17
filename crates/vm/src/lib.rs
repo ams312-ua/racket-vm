@@ -1,4 +1,3 @@
-mod cli;
 mod control;
 pub mod error;
 mod frame;

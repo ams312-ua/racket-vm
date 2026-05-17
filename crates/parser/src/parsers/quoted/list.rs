@@ -12,11 +12,8 @@ impl RecursiveRParser for ListParser {
     fn raw_parser<'a, 'b>(
         inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>
     ) -> impl DefaultParser<'a, Self::Output<'a>> {
-        let primitive_or_quoted = inner.clone()
-            .or(AnyPrimitiveParser::token_parser());
-
-        primitive_or_quoted
-            .separated_by(just(' ').repeated().at_least(1))
+        inner.clone()
+            .repeated()
             .at_least(1)
             .collect::<Vec<_>>()
             .padded()

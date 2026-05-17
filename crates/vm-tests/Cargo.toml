@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+vm.workspace = true
+compiler.workspace = true
+parser.workspace = true
+std-native.workspace = true
+chumsky.workspace = true

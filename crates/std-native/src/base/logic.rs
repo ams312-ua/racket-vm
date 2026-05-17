@@ -1,4 +1,4 @@
-use common::value::{GCValue, Value};
+use common::value::{GCValue, Value, ValueExt};
 use std_native_macros::native_plugin;
 use vm::{
     plugin::{MaybeGcValue, NativeError, NativePluginCollection},
@@ -11,7 +11,10 @@ impl NativePluginCollection for BaseLogicPlugin {
     fn register(self, registry: &mut vm::native::NativePlugins) {
         registry
             .register_plugin(base_and_plugin::plugin())
-            .register_plugin(base_or_plugin::plugin());
+            .register_plugin(base_or_plugin::plugin())
+            .register_plugin(base_not_plugin::plugin())
+            .register_plugin(base_nand_plugin::plugin())
+            .register_plugin(base_nor_plugin::plugin());
     }
 }
 
@@ -44,4 +47,22 @@ fn or(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
     }
 
     Ok(MaybeGcValue::Value(Value::Boolean(false)))
+}
+
+#[native_plugin(namespace = "base", name = "not", arity = 1, variadic = false)]
+fn not(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let arg = &args[0];
+    Ok(Value::Boolean(!arg.is_truthy()).into())
+}
+
+#[native_plugin(namespace = "base", name = "nand", arity = 1, variadic = true)]
+fn nand(vm: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let and_res = and(vm, args)?.into_gc_value();
+    not(vm, &[and_res])
+}
+
+#[native_plugin(namespace = "base", name = "nor", arity = 1, variadic = true)]
+fn nor(vm: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let or_res = or(vm, args)?.into_gc_value();
+    not(vm, &[or_res])
 }

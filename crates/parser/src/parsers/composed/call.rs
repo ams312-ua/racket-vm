@@ -20,7 +20,7 @@ impl RecursiveRParser for CallParser {
     fn raw_parser<'a, 'b>(
         inner: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>,
     ) -> impl DefaultParser<'a, Self::Output<'a>> {
-        let ident_parser = IdentifierParser::token_parser().try_map(|p, span| {
+        /*let ident_parser = IdentifierParser::token_parser().try_map(|p, span| {
             let Token::Primitive(Primitive::Ident(i)) = p else {
                 unreachable!("IdentifierParser should only produce Identifier primitives")
             };
@@ -30,10 +30,18 @@ impl RecursiveRParser for CallParser {
             } else {
                 Ok(p)
             }
-        });
+        });*/
 
         // Root can be either an identifier or another call (for higher-order functions)
-        let parser = ident_parser.or(inner.clone()).try_map(|v, s| {
+        let parser = IdentifierParser::token_parser().or(inner.clone()).try_map(|v, s| {
+            let Token::Primitive(Primitive::Ident(i)) = v else {
+                return Err(Rich::custom(s, "root of a call must be an identifier or another call"));
+            };
+
+            if KEYWORDS.contains(&i) {
+                return Err(Rich::custom(s, "reserved keyword cannot be called"))
+            }
+
             // A call can only have an identifier or another call as root, anything else is a syntax error
             match v {
                 Token::Primitive(Primitive::Ident(_)) | Token::Composed(_) => Ok(v),

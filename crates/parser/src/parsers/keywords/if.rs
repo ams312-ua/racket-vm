@@ -2,22 +2,22 @@ use chumsky::prelude::*;
 
 use crate::{
 	parsers::{
-		DefaultParser, RParser,
-		composed::{Composed, any_composed::AnyComposedParser},
-		keywords::Keyword,
-		primitives::{AnyPrimitiveParser, Primitive},
-		quoted::any_quoted::AnyQuotedParser,
+		DefaultParser, RParser, RecursiveParser, RecursiveRParser, composed::{Composed, any_composed::AnyComposedParser}, keywords::Keyword, primitives::{AnyPrimitiveParser, Primitive}, quoted::any_quoted::AnyQuotedParser
 	},
 	token::Token,
 };
 
 pub struct IfParser;
 
-impl RParser for IfParser {
+impl RecursiveRParser for IfParser {
 	type Output<'a> = Keyword<'a>;
 
-	fn raw_parser<'a>() -> impl DefaultParser<'a, Self::Output<'a>> {
-		recursive(|if_expr| {
+	type RecursiveParserOutput<'a> = Token<'a>;
+
+	fn raw_parser<'a, 'b>(
+		value: RecursiveParser<'a, 'b, Self::RecursiveParserOutput<'a>>,
+	) -> impl DefaultParser<'a, Self::Output<'a>> {
+		/*recursive(|if_expr| {
 			let atom = choice((
 				AnyPrimitiveParser::token_parser(),
 				AnyComposedParser::token_parser(),
@@ -26,7 +26,10 @@ impl RParser for IfParser {
 
 			let value = choice((if_expr.map(Token::Keyword), atom)).padded();
 
-			just("if")
+			
+		})*/
+
+		just("if")
 				.padded()
 				.ignore_then(value.clone())
 				.then(value.clone())
@@ -37,7 +40,6 @@ impl RParser for IfParser {
 					then_branch: Box::new(then_branch),
 					else_branch: Box::new(else_branch),
 				})
-		})
 	}
 
 	fn to_token<'a>(src: Self::Output<'a>) -> Token<'a> {
@@ -54,15 +56,27 @@ mod tests {
 	use super::*;
 
 	fn parse_ok(input: &str) -> Keyword<'_> {
-		IfParser::raw_parser()
+		let mut items = crate::parser()
 			.parse(input)
 			.into_result()
-			.expect("if form should parse")
+			.expect("if form should parse");
+
+		if items.is_empty() {
+			panic!("expected at least one token, got none");
+		}
+
+		let Token::Keyword(keyword) = items.remove(0) else {
+			panic!("expected first token to be a keyword, got {:?}", items[0]);
+		};
+
+		keyword
 	}
 
 	fn parse_err(input: &str) {
-		let res = IfParser::raw_parser().parse(input).into_result();
-		assert!(res.is_err(), "expected parse error for: {input}");
+		let res = crate::parser().parse(input).into_result();
+		assert!(
+			res.is_err() 
+			|| !matches!(res.unwrap().first().unwrap(), Token::Keyword(Keyword::If { condition: _, then_branch: _, else_branch: _ })), "expected parse error for: {input}");
 	}
 
 	#[test]
