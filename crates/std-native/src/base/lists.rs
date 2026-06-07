@@ -14,7 +14,8 @@ impl NativePluginCollection for BaseListPlugin {
             .register_plugin(base_len_plugin::plugin())
             .register_plugin(base_append_plugin::plugin())
             .register_plugin(base_reverse_plugin::plugin())
-            .register_plugin(base_is_null_plugin::plugin());
+            .register_plugin(base_is_null_plugin::plugin())
+            .register_plugin(base_build_list_plugin::plugin());
     }
 }
 
@@ -119,4 +120,30 @@ fn reverse(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
 fn is_null(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
     let item = &args[0];
     Ok(Value::Boolean(item.is_null()).into())
+}
+
+#[native_plugin(namespace = "base", name = "build-list", arity = 2, variadic = false)]
+fn build_list(vm: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let Value::Integer(n) = args[0].as_ref() else {
+        return Err(NativeError::InvalidType {
+            expected: "Integer",
+            got: args[0].data_type_name(),
+        });
+    };
+
+    let Value::Function(ident) = args[1].as_ref() else {
+        return Err(NativeError::InvalidType {
+            expected: "Function",
+            got: args[1].data_type_name(),
+        });
+    };
+
+    let items = (0..*n)
+        .map(|i| {
+            let arg = Value::Integer(i).into();
+            vm.call(ident.clone(), vec![arg]).map_err(Box::new)
+        })
+        .collect::<Result<Vec<GCValue>, _>>()?;
+
+    Ok(Value::list(items).into())
 }

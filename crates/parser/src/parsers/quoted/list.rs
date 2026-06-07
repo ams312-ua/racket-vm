@@ -14,7 +14,7 @@ impl RecursiveRParser for ListParser {
     ) -> impl DefaultParser<'a, Self::Output<'a>> {
         inner.clone()
             .repeated()
-            .at_least(1)
+            //.at_least(1)
             .collect::<Vec<_>>()
             .padded()
             .delimited_by(just("'("), just(')'))
