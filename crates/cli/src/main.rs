@@ -101,7 +101,7 @@ impl Cli {
         vm.plugins().activate_namespace("base"); // activar el namespace base
         
         let result = vm.run()?;
-        println!("Result: {:#?}", result.as_ref().clone());
+        println!("{}", result.as_ref());
 
         Ok(())
     }
