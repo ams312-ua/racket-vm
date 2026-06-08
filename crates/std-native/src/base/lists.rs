@@ -15,7 +15,13 @@ impl NativePluginCollection for BaseListPlugin {
             .register_plugin(base_append_plugin::plugin())
             .register_plugin(base_reverse_plugin::plugin())
             .register_plugin(base_is_null_plugin::plugin())
-            .register_plugin(base_build_list_plugin::plugin());
+            .register_plugin(base_build_list_plugin::plugin())
+            .register_plugin(base_first_plugin::plugin())
+            .register_plugin(base_second_plugin::plugin())
+            .register_plugin(base_third_plugin::plugin())
+            .register_plugin(base_forth_plugin::plugin())
+            .register_plugin(base_rest_plugin::plugin())
+            .register_plugin(base_is_list_plugin::plugin());
     }
 }
 
@@ -146,4 +152,76 @@ fn build_list(vm: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError
         .collect::<Result<Vec<GCValue>, _>>()?;
 
     Ok(Value::list(items).into())
+}
+
+#[native_plugin(namespace = "base", name = "first", arity = 1, variadic = false)]
+fn first(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+
+    if !item.is_list() {
+        return Err(NativeError::InvalidType {
+            expected: "List",
+            got: item.data_type_name(),
+        });
+    }
+
+    if let Value::Pair { car, .. } = item.as_ref() {
+        Ok(car.clone().into())
+    } else {
+        Ok(Value::Null.into())
+    }
+}
+
+#[native_plugin(namespace = "base", name = "second", arity = 1, variadic = false)]
+fn second(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+
+    item.iter_list()?.nth(1).map(|item| item.into_value().into()).ok_or_else(|| NativeError::InvalidType {
+        expected: "List with at least 2 items",
+        got: item.data_type_name(),
+    })
+}
+
+#[native_plugin(namespace = "base", name = "third", arity = 1, variadic = false)]
+fn third(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+
+    item.iter_list()?.nth(2).map(|item| item.into_value().into()).ok_or_else(|| NativeError::InvalidType {
+        expected: "List with at least 3 items",
+        got: item.data_type_name(),
+    })
+}
+
+#[native_plugin(namespace = "base", name = "forth", arity = 1, variadic = false)]
+fn forth(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+
+    item.iter_list()?.nth(3).map(|item| item.into_value().into()).ok_or_else(|| NativeError::InvalidType {
+        expected: "List with at least 4 items",
+        got: item.data_type_name(),
+    })
+}
+
+#[native_plugin(namespace = "base", name = "rest", arity = 1, variadic = false)]
+fn rest(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+
+    if !item.is_list() {
+        return Err(NativeError::InvalidType {
+            expected: "List",
+            got: item.data_type_name(),
+        });
+    }
+
+    if let Value::Pair { cdr, .. } = item.as_ref() {
+        Ok(cdr.clone().into())
+    } else {
+        Ok(Value::Null.into())
+    }
+}
+
+#[native_plugin(namespace = "base", name = "list?", arity = 1, variadic = false)]
+fn is_list(_: &mut VM, args: &[GCValue]) -> Result<MaybeGcValue, NativeError> {
+    let item = &args[0];
+    Ok(Value::Boolean(item.is_list()).into())
 }
